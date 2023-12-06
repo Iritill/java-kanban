@@ -9,9 +9,9 @@ public class Main {
         // Пункт 1
 
         //Создание обычных Task
-        int task1 = manager.create(new Task("Сделать проект1",
+        int task1 = manager.create(new Task("Сделать проект по 3 спринту",
                 "Нужно прям очень сильно да очень сильно постараться"));
-        int task2 = manager.create(new Task("Сделать проект2",
+        int task2 = manager.create(new Task("Сделать проект по 4 спринту",
                 "Мы уже опазываем тут очень грустно надо постараться"));
 
         //Создание первого Epic
@@ -21,16 +21,16 @@ public class Main {
         //Создание SubTasks для первого Epic
         int sub1 = manager.create(new SubTask("УАУАУАУАУАУАУА",
                 "Простите песенка хорошая в голове заиграла", manager.getEpic(epic1)));
-        int sub2 = manager.create(new SubTask("XAXAXAXAXAXAXAXA",
-                "Как же я устал...", manager.getEpic(epic1)));
+        int sub2 = manager.create(new SubTask("Может быть устроиться на работу",
+                "Как же я устал... Но работать надо", manager.getEpic(epic1)));
 
         //Cоздание второго Epic
-        int epic2 = manager.create(new Epic("Заработать мало проблем",
+        int epic2 = manager.create(new Epic("Заработать мало проблем, пока пытаюсь заработать много деняк",
                 "Ну очень много деняк надо, но при этом поменьше проблем заработать"));
 
         //Создание SubTask для второго Epic
-        int sub3 = manager.create(new SubTask("Иуиуиуиуиуиуииуиу",
-                "Я уже столько багов нашел что у меня бошка взрывается", manager.getEpic(epic2)));
+        int sub3 = manager.create(new SubTask("Отдохнуть",
+                "Я уже столько багов нашел что у меня бошка взрывается, а то работать не смогу", manager.getEpic(epic2)));
 
         // Пункт 2
 
