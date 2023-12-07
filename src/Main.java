@@ -1,4 +1,4 @@
-import Module.*;
+import Tasks.*;
 import Service.Manager;
 
 
@@ -43,14 +43,27 @@ public class Main {
 
 
         //Обновление статуса Task
-        manager.update(new Task(manager.getTask(task1).getName(), manager.getTask(task1).getDescription(), "DONE", task1));
-        manager.update(new Task(manager.getTask(task2).getName(), manager.getTask(task2).getDescription(), "IN_PROGRESS", task2));
-
+        Task task1ToUpdate = manager.getTask(task1);
+        task1ToUpdate.setStatus("DONE");
+        manager.update(task1ToUpdate);
+        Task task2ToUpdate = manager.getTask(task2);
+        task2ToUpdate.setStatus("IN_PROGRESS");
+        manager.update(task2ToUpdate);
 
         //Обновление статуса SubTask
-        manager.update(new SubTask(manager.getSubTask(sub1).getName(), manager.getSubTask(sub1).getDescription(), "DONE", sub1,  manager.getEpic(epic1)));
-        manager.update(new SubTask(manager.getSubTask(sub2).getName(), manager.getSubTask(sub2).getDescription(), "IN_PROGRESS", sub2, manager.getEpic(epic1)));
-        manager.update(new SubTask(manager.getSubTask(sub3).getName(), manager.getSubTask(sub3).getDescription(), "DONE", sub3, manager.getEpic(epic2)));
+
+        SubTask subTask1ToUpdate = manager.getSubTask(sub1);
+        subTask1ToUpdate.setStatus("NEW");
+        manager.update(subTask1ToUpdate);
+
+        SubTask subTask2ToUpdate = manager.getSubTask(sub2);
+        subTask2ToUpdate.setStatus("IN_PROGRESS");
+        manager.update(subTask2ToUpdate);
+
+        SubTask subTask3ToUpdate = manager.getSubTask(sub3);
+        subTask3ToUpdate.setStatus("DONE");
+        manager.update(subTask3ToUpdate);
+
 
         //Вывод и проверка обновления статуса Task
         System.out.println(manager.getTask(task1));
