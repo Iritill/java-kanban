@@ -1,0 +1,36 @@
+package Service.Interface;
+
+import Tasks.Epic;
+import Tasks.SubTask;
+import Tasks.Task;
+
+import java.util.ArrayList;
+
+public interface TaskManager {
+    public int create(Task task);
+    public int create(Epic epic);
+    public int create(SubTask subTask);
+    public SubTask getSubTaskForUpdate(Integer id);
+    public Task getTaskForUpdate(Integer id);
+    public ArrayList<Task> getAllTasks();
+    public ArrayList<Epic> getAllEpics();
+    public ArrayList<SubTask> getAllSubTasks();
+    public void clearTask();
+    public void clearEpics();
+    public void clearSubTask();
+    public Task getTask(Integer id);
+    public Epic getEpic(Integer id);
+    public SubTask getSubTask(Integer id);
+    public void update(Task task);
+    public Epic getEpicForSubTask(Integer id);
+
+    public void update(Epic epic);
+    public void update(SubTask subTask);
+    public void updateStatus(Epic epic);
+    public void clearByIdTask(Integer id);
+    public void clearByIdEpic(Integer id);
+    public void clearByIdSubTask(Integer id);
+    public ArrayList<SubTask> getAllSubTaskByEpic(Integer id);
+    public ArrayList<Integer> getAllSubTaskId(Epic epic);
+    public ArrayList<Task> getHistory();
+}

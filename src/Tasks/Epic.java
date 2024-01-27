@@ -1,6 +1,7 @@
 package Tasks;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Epic extends Task {
     private final ArrayList<Integer> subTaskId = new ArrayList<>();
@@ -22,7 +23,9 @@ public class Epic extends Task {
         subTaskId.clear();
     }
 
-    public ArrayList<Integer> getSubTaskId(){
+    public ArrayList<Integer> getSubTaskId() {
         return subTaskId;
     }
+
+
 }
