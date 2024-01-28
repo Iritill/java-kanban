@@ -1,6 +1,7 @@
 package Service.InMemoryManager;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import Service.Interface.*;
 import Service.Manager;
@@ -16,7 +17,7 @@ public class InMemoryTaskManager implements TaskManager {
     private int nextId = 1;
 
     @Override
-    public ArrayList<Task> getHistory(){
+    public List<Task> getHistory(){
         return historyManager.getHistory();
     }
 
@@ -51,15 +52,15 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
     @Override
-    public ArrayList<Task> getAllTasks(){
+    public List<Task> getAllTasks(){
         return new ArrayList<Task>(tasks.values());
     }
     @Override
-    public ArrayList<Epic> getAllEpics(){
+    public List<Epic> getAllEpics(){
         return new ArrayList<Epic>(epics.values());
     }
     @Override
-    public ArrayList<SubTask> getAllSubTasks(){
+    public List<SubTask> getAllSubTasks(){
         return new ArrayList<SubTask>(subTasks.values());
     }
     @Override

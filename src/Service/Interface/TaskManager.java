@@ -5,6 +5,7 @@ import Tasks.SubTask;
 import Tasks.Task;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface TaskManager {
     public int create(Task task);
@@ -12,9 +13,9 @@ public interface TaskManager {
     public int create(SubTask subTask);
     public SubTask getSubTaskForUpdate(Integer id);
     public Task getTaskForUpdate(Integer id);
-    public ArrayList<Task> getAllTasks();
-    public ArrayList<Epic> getAllEpics();
-    public ArrayList<SubTask> getAllSubTasks();
+    public List<Task> getAllTasks();
+    public List<Epic> getAllEpics();
+    public List<SubTask> getAllSubTasks();
     public void clearTask();
     public void clearEpics();
     public void clearSubTask();
@@ -30,7 +31,7 @@ public interface TaskManager {
     public void clearByIdTask(Integer id);
     public void clearByIdEpic(Integer id);
     public void clearByIdSubTask(Integer id);
-    public ArrayList<SubTask> getAllSubTaskByEpic(Integer id);
-    public ArrayList<Integer> getAllSubTaskId(Epic epic);
-    public ArrayList<Task> getHistory();
+    public List<SubTask> getAllSubTaskByEpic(Integer id);
+    public List<Integer> getAllSubTaskId(Epic epic);
+    public List<Task> getHistory();
 }
