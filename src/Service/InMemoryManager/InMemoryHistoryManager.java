@@ -8,6 +8,7 @@ import Tasks.Task;
 public class InMemoryHistoryManager implements HistoryManager {
 
     private final ArrayList<Task> historyTask = new ArrayList<>();
+
     @Override
     public void add(Task task){
         if(historyTask.size() >= 10){
