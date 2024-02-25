@@ -102,4 +102,11 @@ class InMemoryTaskManagerTest {
         assertEquals(0, subTaskTest, "Нельзя задать саб таск с эпиком, чей id не был сгенерирован при помощи taskManager");
     }
 
+    @Test
+    void setNameForTaskTest(){
+        Task taskForTest = new Task("Не работает", "Описание");
+        taskForTest.setName("Работает");
+        assertEquals("Работает", taskForTest.getName(), "Имя не меняется");
+    }
+
 }

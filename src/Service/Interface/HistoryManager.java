@@ -5,8 +5,8 @@ import java.util.HashMap;
 import Tasks.Task;
 
 public interface HistoryManager {
-    public void add(Task task);
-
-    List<Task> getHistory();
+     public void add(Task task);
+     public void remove(int id);
+     List<Task> getHistory();
 
 }

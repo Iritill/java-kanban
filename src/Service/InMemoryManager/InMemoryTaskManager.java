@@ -2,6 +2,7 @@ package Service.InMemoryManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import Service.Interface.*;
 import Service.Manager;
@@ -63,6 +64,7 @@ public class InMemoryTaskManager implements TaskManager {
     public List<SubTask> getAllSubTasks(){
         return new ArrayList<SubTask>(subTasks.values());
     }
+
     @Override
     public void clearTask(){
         tasks.clear();
