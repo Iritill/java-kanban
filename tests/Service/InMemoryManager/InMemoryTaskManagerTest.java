@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.plaf.synth.SynthUI;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -100,6 +101,23 @@ class InMemoryTaskManagerTest {
         int subTaskTest = taskManager.create(new SubTask("Сабтаск", "саб таск", epicTest));
 
         assertEquals(0, subTaskTest, "Нельзя задать саб таск с эпиком, чей id не был сгенерирован при помощи taskManager");
+    }
+
+    @Test
+    void setNameForTaskTest(){
+        Task taskForTest = new Task("Не работает", "Описание");
+        taskForTest.setName("Работает");
+        assertEquals("Работает", taskForTest.getName(), "Имя не меняется");
+    }
+
+    @Test
+    void removeSubTask(){
+        Epic epicTest = new Epic("Пиу пиу пиу", "пиу пиу");
+        int subTaskTest = taskManager.create(new SubTask("Сабтаск", "саб таск", epicTest));
+        SubTask subTask = taskManager.getSubTaskForUpdate(subTaskTest);
+        taskManager.clearByIdSubTask(subTaskTest);
+        assertEquals(new ArrayList<>(), epicTest.getSubTaskId(), "При удалении сабтаска остается id в эпике");
+        assertNull(subTask, "subTask все еще существует и хранит в себе какие-то значения");
     }
 
 }
