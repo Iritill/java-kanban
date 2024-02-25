@@ -42,6 +42,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     }
 
     public void removeNode(Node node){
+
         if(node.prev != null && node.next != null){
             node.prev.next = node.next;
             node.next.prev = node.prev;
@@ -64,6 +65,7 @@ public class InMemoryHistoryManager implements HistoryManager {
             curNode = curNode.next;
         }
         list.add(curNode.data);
+
 
         return list;
     }
