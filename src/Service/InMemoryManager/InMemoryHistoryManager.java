@@ -8,6 +8,7 @@ import Service.Interface.HistoryManager;
 import Tasks.Task;
 
 public class InMemoryHistoryManager implements HistoryManager {
+
     private Map<Integer, Node> historyTask = new HashMap<>();
     public static class Node {
         public Task data;
