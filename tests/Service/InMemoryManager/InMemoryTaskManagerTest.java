@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.swing.plaf.synth.SynthUI;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,6 +108,16 @@ class InMemoryTaskManagerTest {
         Task taskForTest = new Task("Не работает", "Описание");
         taskForTest.setName("Работает");
         assertEquals("Работает", taskForTest.getName(), "Имя не меняется");
+    }
+
+    @Test
+    void removeSubTask(){
+        Epic epicTest = new Epic("Пиу пиу пиу", "пиу пиу");
+        int subTaskTest = taskManager.create(new SubTask("Сабтаск", "саб таск", epicTest));
+        SubTask subTask = taskManager.getSubTaskForUpdate(subTaskTest);
+        taskManager.clearByIdSubTask(subTaskTest);
+        assertEquals(new ArrayList<>(), epicTest.getSubTaskId(), "При удалении сабтаска остается id в эпике");
+        assertNull(subTask, "subTask все еще существует и хранит в себе какие-то значения");
     }
 
 }

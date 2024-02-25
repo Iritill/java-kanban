@@ -1,5 +1,6 @@
 package Service.InMemoryManager;
 
+import Service.Interface.HistoryManager;
 import Service.Interface.TaskManager;
 import Service.Manager;
 import Tasks.Epic;
@@ -13,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
     @Test
-    public void historyTest(){
+    public void historyReplaceTest(){
         TaskManager taskManager = Manager.getDefault();
 
         int taskFirst = taskManager.create(new Task("Первый таск", "обычный"));
@@ -33,23 +34,38 @@ class InMemoryHistoryManagerTest {
         assertEquals(taskManager.getHistory().get(0), arrayForTaskTest.get(0), "Добавление первого элемента не работает исправно");
         assertEquals(taskManager.getHistory().get(2), arrayForTaskTest.get(2), "Добавление сабтаска не работает исправно");
 
-
         arrayForTaskTest.add(taskManager.getTask(taskSecond));
-        assertEquals(taskManager.getHistory().size(), 4, "Удаление и перезаписывание работает корректно");
+        assertEquals(taskManager.getHistory().size(), 4, "Перезаписывание таска в истории работает не корректно");
 
         arrayForTaskTest.add(taskManager.getTask(taskFirst));
-        assertEquals(taskManager.getHistory().get(3), arrayForTaskTest.get(0), "Удаление и перезаписывание первого элемента работает корректно");
+        assertEquals(taskManager.getHistory().get(3), arrayForTaskTest.get(0), "Перезаписывание первого элемента в истории работает не корректно");
 
         arrayForTaskTest.add(taskManager.getTask(taskFirst));
-        assertEquals(taskManager.getHistory().get(3), arrayForTaskTest.get(6), "Удаление и перезаписывание последнего элемента работает корректно");
+        assertEquals(taskManager.getHistory().get(3), arrayForTaskTest.get(6), "Перезаписывание последнего элемента в истории работает не корректно");
+    }
 
-        Task taskForUpdate = taskManager.getTaskForUpdate(taskFirst);
-        taskForUpdate.setStatus("DONE");
-        taskManager.update(taskForUpdate);
+    @Test
+    public void historyDeleteTest(){
 
+        TaskManager taskManager = Manager.getDefault();
 
+        ArrayList<Task> arrayForTest = new ArrayList<>();
 
+        int taskFirst = taskManager.create(new Task("Первый таск", "обычный"));
+        int taskSecond = taskManager.create(new Task("Второй таск", "обычный"));
+
+        Task task1 = taskManager.getTask(taskFirst);
+        Task task2 = taskManager.getTask(taskSecond);
+        Task task3 = taskManager.getTask(taskFirst);
+
+        arrayForTest.add(task1);
+        arrayForTest.add(task2);
+
+        //При вызове taskFirst во второй раз происходит удаление из истории с нулевого элемента и постановка в конец
+        //В целом мне так и сказал наставник, что правильность выполнения работы методов remove and removeNode можно проверить только с помощью getHistory()
+        assertNotEquals(arrayForTest.get(0), taskManager.getHistory().get(0), "Удаление работает не корректно");
 
     }
+
 
 }
