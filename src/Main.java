@@ -13,9 +13,8 @@ import java.util.List;
 public class Main {
 
     public static void main(String[] args){
-        CSVFormat format = new CSVFormat();
         File file = new File(".\\src\\Resources\\file.txt");
-        FileBackedTaskManager manager = new FileBackedTaskManager(format, file);
+        FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
         int task1 = manager.createTask(new Task("1313", "312313"));
         Task tasks = manager.getTask(task1);

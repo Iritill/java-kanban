@@ -1,40 +1,26 @@
 package Service.FileBacked;
 
-import Service.FileBackedManager.CSVFormat;
 import Service.FileBackedManager.Exception.ManagerFileNotExistsException;
-import Service.FileBackedManager.Exception.ManagerReadException;
-import Service.FileBackedManager.Exception.ManagerSaveException;
 import Service.FileBackedManager.FileBackedTaskManager;
-
 import Service.Manager;
 import Tasks.*;
 import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class FileBackedTaskManagerTest{
-
-
-
-
     @Test
     void loadFromFile() {
         File tempFile;
-
 
         try {
             tempFile = File.createTempFile("hello", ".tmp");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-        CSVFormat format = new CSVFormat();
-        FileBackedTaskManager taskManager1 = Manager.getDefaultFileBackedTaskManager(format, tempFile);
+        FileBackedTaskManager taskManager1 = Manager.getDefaultFileBackedTaskManager(tempFile);
         Task task11 = new Task("Задание 111212", "Описание 1");
         taskManager1.createTask(task11);
         Task task22 = new Task("Задание 2", "Описание 2");
@@ -72,11 +58,9 @@ class FileBackedTaskManagerTest{
 
         File file = new File("fasfasf");
         try{
-            FileBackedTaskManager taskManager3 = new FileBackedTaskManager(format, file);
+            FileBackedTaskManager taskManager3 = new FileBackedTaskManager(file);
         } catch (ManagerFileNotExistsException e){
             assertEquals("Файла не существует", e.getMessage());
         }
-
-
     }
 }

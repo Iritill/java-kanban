@@ -23,7 +23,7 @@ public class CSVFormat {
         return line;
     }
 
-    public Task fromString(String value) {
+    public static Task fromString(String value) {
         String[] lineContents = value.split(",");
         TasksType type = TasksType.valueOf(lineContents[1]);
         int id = Integer.parseInt(lineContents[0]);
@@ -39,7 +39,7 @@ public class CSVFormat {
             return new SubTask(name, description, status, epicId, id);
         }
     }
-    public String historyToString(HistoryManager manager) {
+    public static String historyToString(HistoryManager manager) {
         StringBuilder sB = new StringBuilder();
         for (Task task : manager.getHistory()) {
             sB.append(task.getId());
@@ -51,7 +51,7 @@ public class CSVFormat {
         return sB.toString();
     }
 
-    public List<Integer> historyFromString(String str) {
+    public static List<Integer> historyFromString(String str) {
         List<Integer> list = new ArrayList<>();
         if(str != null){
             String[] split = str.split(",");

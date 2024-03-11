@@ -17,5 +17,5 @@ public class Manager{
         return new InMemoryHistoryManager();
     }
 
-    public static FileBackedTaskManager getDefaultFileBackedTaskManager(CSVFormat format, File file){return new FileBackedTaskManager(format, file);}
+    public static FileBackedTaskManager getDefaultFileBackedTaskManager(File file){return new FileBackedTaskManager(file);}
 }

@@ -10,16 +10,9 @@ import java.util.HashMap;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
-    CSVFormat format ;
 
     public FileBackedTaskManager(File file){
         super();
-        this.file = file;
-    }
-
-    public FileBackedTaskManager(CSVFormat format , File file){
-        super();
-        this.format  = format  ;
         this.file = file;
 
         if(!file.exists()){
@@ -45,7 +38,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 writer.newLine();
             }
             writer.newLine();
-            writer.write(format.historyToString(historyManager));
+            writer.write(CSVFormat.historyToString(historyManager));
             writer.newLine();
         } catch (IOException e) {
             throw new ManagerSaveException("Не получается сохранить файл:" + file.getName(), e);
@@ -55,8 +48,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromManager(File file) {
         HashMap<Integer, Task> all = new HashMap<>();
-        CSVFormat format = new CSVFormat();
-        FileBackedTaskManager fileManager = new FileBackedTaskManager(format, file);
+        FileBackedTaskManager fileManager = new FileBackedTaskManager(file);
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             Task task = null;
             if (reader.readLine() == null) {
@@ -68,7 +60,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 if (result.isEmpty()) {
                     break;
                 }
-                task = format.fromString(result);
+                task = CSVFormat.fromString(result);
                 if (task.getType() == TasksType.TASK) {
                     fileManager.tasks.put(task.getId(), task);
                     all.put(task.getId(), task);
@@ -86,7 +78,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
 
             String history = reader.readLine();
-            for (Integer inter : format.historyFromString(history)) {
+            for (Integer inter : CSVFormat.historyFromString(history)) {
                 historyManager.add(all.get(inter));
             }
             return fileManager;
