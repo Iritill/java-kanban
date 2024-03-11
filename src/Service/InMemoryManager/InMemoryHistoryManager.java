@@ -46,10 +46,10 @@ public class InMemoryHistoryManager implements HistoryManager {
         if(node.prev != null && node.next != null){
             node.prev.next = node.next;
             node.next.prev = node.prev;
-        } else if (node.prev == null){
+        } else if (node.prev == null && node.next != null){
             node.next.prev = null;
             head = node.next;
-        } else if (node.next == null){
+        } else if (node.next == null && node.prev != null){
             node.prev.next = null;
             tail = node.prev;
         }
@@ -59,12 +59,14 @@ public class InMemoryHistoryManager implements HistoryManager {
         ArrayList<Task> list = new ArrayList<>();
 
         Node curNode = head;
-
-        while(curNode.next != null){
+        if(curNode != null){
+            while(curNode.next != null){
+                list.add(curNode.data);
+                curNode = curNode.next;
+            }
             list.add(curNode.data);
-            curNode = curNode.next;
         }
-        list.add(curNode.data);
+
 
 
         return list;

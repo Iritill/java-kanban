@@ -17,12 +17,12 @@ class InMemoryHistoryManagerTest {
     public void historyReplaceTest(){
         TaskManager taskManager = Manager.getDefault();
 
-        int taskFirst = taskManager.create(new Task("Первый таск", "обычный"));
-        int taskSecond = taskManager.create(new Task("Второй таск", "обычный"));
+        int taskFirst = taskManager.createTask(new Task("Первый таск", "обычный"));
+        int taskSecond = taskManager.createTask(new Task("Второй таск", "обычный"));
 
-        int taskEpicFirst = taskManager.create(new Epic("Первый Epic", "Эпик"));
+        int taskEpicFirst = taskManager.createEpic(new Epic("Первый Epic", "Эпик"));
 
-        int taskSubTaskFirst = taskManager.create(new SubTask("Первый сабтаск", "сабтаск", taskManager.getEpicForSubTask(taskEpicFirst)));
+        int taskSubTaskFirst = taskManager.createSubTask(new SubTask("Первый сабтаск", "сабтаск", taskManager.getEpicForSubTask(taskEpicFirst)));
 
         ArrayList<Task> arrayForTaskTest = new ArrayList<>();
 
@@ -30,6 +30,8 @@ class InMemoryHistoryManagerTest {
         arrayForTaskTest.add(taskManager.getTask(taskSecond));
         arrayForTaskTest.add(taskManager.getSubTask(taskSubTaskFirst));
         arrayForTaskTest.add(taskManager.getEpic(taskEpicFirst));
+
+        System.out.println(taskManager.getHistory());
 
         assertEquals(taskManager.getHistory().get(0), arrayForTaskTest.get(0), "Добавление первого элемента не работает исправно");
         assertEquals(taskManager.getHistory().get(2), arrayForTaskTest.get(2), "Добавление сабтаска не работает исправно");
@@ -51,8 +53,8 @@ class InMemoryHistoryManagerTest {
 
         ArrayList<Task> arrayForTest = new ArrayList<>();
 
-        int taskFirst = taskManager.create(new Task("Первый таск", "обычный"));
-        int taskSecond = taskManager.create(new Task("Второй таск", "обычный"));
+        int taskFirst = taskManager.createTask(new Task("Первый таск", "обычный"));
+        int taskSecond = taskManager.createTask(new Task("Второй таск", "обычный"));
 
         Task task1 = taskManager.getTask(taskFirst);
         Task task2 = taskManager.getTask(taskSecond);

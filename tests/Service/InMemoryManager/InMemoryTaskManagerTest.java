@@ -14,17 +14,17 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryTaskManagerTest {
-    TaskManager taskManager = Manager.getDefault();
+public class InMemoryTaskManagerTest {
+    protected TaskManager taskManager = Manager.getDefault();
     @BeforeEach
     void beforeEach(){
-        int taskForTestCreate1 = taskManager.create(new Task("Первый таск", "Обычный"));
-        int taskForTestCreate2 = taskManager.create(new Task("Второй таск", "Обычный"));
+        int taskForTestCreate1 = taskManager.createTask(new Task("Первый таск", "Обычный"));
+        int taskForTestCreate2 = taskManager.createTask(new Task("Второй таск", "Обычный"));
 
-        int taskForTestCreate3 = taskManager.create(new Epic("Третий таск", "Эпик"));
+        int taskForTestCreate3 = taskManager.createEpic(new Epic("Третий таск", "Эпик"));
 
-        int taskForTestCreate4 = taskManager.create(new SubTask("Четвертый таск", "Сабтаск", taskManager.getEpicForSubTask(taskForTestCreate3)));
-        int taskForTestCreate5 = taskManager.create(new SubTask("Пятый таск", "Сабтаск", taskManager.getEpicForSubTask(taskForTestCreate3)));
+        int taskForTestCreate4 = taskManager.createSubTask(new SubTask("Четвертый таск", "Сабтаск", taskManager.getEpicForSubTask(taskForTestCreate3)));
+        int taskForTestCreate5 = taskManager.createSubTask(new SubTask("Пятый таск", "Сабтаск", taskManager.getEpicForSubTask(taskForTestCreate3)));
     }
 
     @Test
@@ -76,7 +76,7 @@ class InMemoryTaskManagerTest {
         taskManager.clearByIdEpic(3);
         assertEquals(0, taskManager.getAllEpics().size(), "Не удалился эпик таск");
 
-        int EpicForTest = taskManager.create(new Epic("Эпик для теста удаления", "Эпик"));
+        int EpicForTest = taskManager.createEpic(new Epic("Эпик для теста удаления", "Эпик"));
 
         taskManager.clearEpics();
         assertEquals(0, taskManager.getAllEpics().size(), "Не удалились все эпик таски");
@@ -98,7 +98,7 @@ class InMemoryTaskManagerTest {
     void createSubTaskTest(){
         Epic epicTest = new Epic("Пиу пиу пиу", "пиу пиу");
 
-        int subTaskTest = taskManager.create(new SubTask("Сабтаск", "саб таск", epicTest));
+        int subTaskTest = taskManager.createSubTask(new SubTask("Сабтаск", "саб таск", epicTest));
 
         assertEquals(0, subTaskTest, "Нельзя задать саб таск с эпиком, чей id не был сгенерирован при помощи taskManager");
     }
@@ -113,7 +113,7 @@ class InMemoryTaskManagerTest {
     @Test
     void removeSubTask(){
         Epic epicTest = new Epic("Пиу пиу пиу", "пиу пиу");
-        int subTaskTest = taskManager.create(new SubTask("Сабтаск", "саб таск", epicTest));
+        int subTaskTest = taskManager.createSubTask(new SubTask("Сабтаск", "саб таск", epicTest));
         SubTask subTask = taskManager.getSubTaskForUpdate(subTaskTest);
         taskManager.clearByIdSubTask(subTaskTest);
         assertEquals(new ArrayList<>(), epicTest.getSubTaskId(), "При удалении сабтаска остается id в эпике");
