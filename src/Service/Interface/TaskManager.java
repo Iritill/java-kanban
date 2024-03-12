@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
-    public int create(Task task);
-    public int create(Epic epic);
-    public int create(SubTask subTask);
+    public int createTask(Task task);
+    public int createEpic(Epic epic);
+    public int createSubTask(SubTask subTask);
     public SubTask getSubTaskForUpdate(Integer id);
     public Task getTaskForUpdate(Integer id);
     public List<Task> getAllTasks();
