@@ -1,12 +1,14 @@
 package Service.FileBacked;
 
 import Service.FileBackedManager.Exception.ManagerFileNotExistsException;
+import Service.FileBackedManager.Exception.TaskValidException;
 import Service.FileBackedManager.FileBackedTaskManager;
 import Service.Manager;
 import Tasks.*;
 import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,6 +57,39 @@ class FileBackedTaskManagerTest{
         assertEquals(managerLoad.getHistory(), taskManager1.getHistory());
         managerLoad.clearSubTask();
         assertEquals(new ArrayList<SubTask>(), managerLoad.getAllSubTasks());
+
+        File file = new File("fasfasf");
+        try{
+            FileBackedTaskManager taskManager3 = new FileBackedTaskManager(file);
+        } catch (ManagerFileNotExistsException e){
+            assertEquals("Файла не существует", e.getMessage());
+        }
+    }
+
+    @Test
+    void loadFromFileForDate() {
+        File tempFile;
+
+        try {
+            tempFile = File.createTempFile("hello", ".tmp");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        FileBackedTaskManager taskManager1 = Manager.getDefaultFileBackedTaskManager(tempFile);
+        Task task11 = new Task("Задание 111212", "Описание 1", LocalDateTime.now(), 100L);
+        taskManager1.createTask(task11);
+
+
+        FileBackedTaskManager managerLoad = FileBackedTaskManager.loadFromManager(tempFile);
+        assertNotNull(managerLoad);
+        assertEquals(task11, managerLoad.getTask(1), "Создаваемый таск не равен таску, загруженному из файла");
+
+        try{
+            Task task12 = new Task("Задание для проверки пересечения", "Описание 1", LocalDateTime.now(), 100L);
+        } catch (TaskValidException e){
+            assertEquals("Задача пересекается", e.getMessage());
+        }
+
 
         File file = new File("fasfasf");
         try{

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import Service.Interface.HistoryManager;
 import Tasks.Task;
 
+
 public class InMemoryHistoryManager implements HistoryManager {
 
     private Map<Integer, Node> historyTask = new HashMap<>();
@@ -74,7 +75,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task){
-        Task taskForArray = new Task(task.getName(), task.getDescription(), task.getStatus(), task.getId());
+        Task taskForArray = new Task(task.getName(), task.getDescription(), task.getStatus(), task.getStartDate(), task.getDuration(), task.getId());
         if (historyTask.containsKey(task.getId())) {
             remove(task.getId());
         }

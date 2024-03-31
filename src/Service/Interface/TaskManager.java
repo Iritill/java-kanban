@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
+    public List<Task> getPrioritizedTasks();
     public int createTask(Task task);
     public int createEpic(Epic epic);
     public int createSubTask(SubTask subTask);

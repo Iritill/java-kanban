@@ -1,14 +1,17 @@
 package Tasks;
 
+import java.time.Duration;
 import java.util.Objects;
+import java.time.LocalDateTime;
 
 public class Task {
     protected String name;
     protected String description;
     protected int id;
     protected String status;
-
     protected TasksType type;
+    protected LocalDateTime startDate;
+    protected Duration duration;
 
 
     public Task(String name, String description, String status, int id){
@@ -18,6 +21,33 @@ public class Task {
         this.id = id;
         this.type = TasksType.TASK;
     }
+    public Task(String name, String description, String status, LocalDateTime startDate, long duration, int id) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.id = id;
+        this.type = TasksType.TASK;
+        this.startDate = startDate;
+        this.duration = Duration.ofMinutes(duration);
+    }
+
+    public Task(String name, String description, LocalDateTime startDate, long duration) {
+        this.name = name;
+        this.description = description;
+        this.status = "NEW";
+        this.type = TasksType.TASK;
+        this.startDate = startDate;
+        this.duration = Duration.ofMinutes(duration);
+    }
+
+    public Task(String name, String description, long duration) {
+        this.name = name;
+        this.description = description;
+        this.status = "NEW";
+        this.type = TasksType.TASK;
+        this.startDate = LocalDateTime.now();
+        this.duration = Duration.ofMinutes(duration);
+    }
 
     public Task(String name, String description) {
         this.name = name;
@@ -26,6 +56,51 @@ public class Task {
         this.type = TasksType.TASK;
     }
 
+    public Task(String name, String description, String status, LocalDateTime startDate, Duration duration, int id) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.id = id;
+        this.type = TasksType.TASK;
+        this.startDate = startDate;
+        this.duration = duration;
+    }
+
+    public Task(String name, String description, String status, LocalDateTime startData, Long duration, int id) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.id = id;
+        this.type = TasksType.TASK;
+        this.startDate = startData;
+        if(duration == null){
+            this.duration = null;
+        } else {
+            this.duration = Duration.ofMinutes(duration);
+        }
+    }
+
+    public LocalDateTime getEndDate() {
+        if (startDate != null) {
+            return startDate.plusMinutes(duration.toMinutes());
+        } else {
+            return null;
+        }
+    }
+
+    public LocalDateTime getStartTime(){
+        return startDate;
+    }
+    public void setStartTime(LocalDateTime startTime1){
+        startDate = startTime1;
+    }
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
     public String getName(){
         return name;
     }
@@ -71,7 +146,11 @@ public class Task {
         return "name=" + name + '\'' +
                 "description=" + description + '\'' +
                 "status=" + status + '\'' +
-                "id=" + id;
+                "id=" + id + '\'' +
+                "type:" + type + '\'' +
+                "startDate=" + startDate + '\'' +
+                "endDate=" + getEndDate() + '\'' +
+                "duration=" + duration + '\'';
     }
 
     @Override

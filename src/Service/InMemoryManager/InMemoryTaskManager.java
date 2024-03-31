@@ -1,18 +1,19 @@
 package Service.InMemoryManager;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 
+import Service.FileBackedManager.Exception.TaskValidException;
 import Service.Interface.*;
 import Service.Manager;
 import Tasks.Task;
 import Tasks.Epic;
 import Tasks.SubTask;
+import java.util.stream.Collectors;
 public class InMemoryTaskManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks = new HashMap<>();
     protected final HashMap<Integer, Epic> epics =  new HashMap<>();
     protected final HashMap<Integer, SubTask> subTasks = new HashMap<>();
+    protected TreeSet<Task> prioritizedTasks = new TreeSet<Task>(new ComparatorTask());
 
     protected static HistoryManager historyManager = null;
 
@@ -21,6 +22,30 @@ public class InMemoryTaskManager implements TaskManager {
     }
     private int nextId = 1;
 
+    private void validate(Task task) {
+        LocalDateTime startDate = task.getStartDate();
+        LocalDateTime endDate = task.getEndDate();
+        if (startDate != null) {
+            for (Task taskValidated2 : prioritizedTasks) {
+                if (taskValidated2.getStartDate() == null) {
+                    continue;
+                }
+                if (taskValidated2.getId() == task.getId()) {
+                    continue;
+                }
+
+                if (startDate.isBefore(taskValidated2.getEndDate()) && taskValidated2.getStartDate().isBefore(endDate)) {
+                    throw new TaskValidException("Задача пересекается");
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<Task> getPrioritizedTasks() {
+        List<Task> list = new ArrayList<Task>(prioritizedTasks);
+        return list;
+    }
     @Override
     public List<Task> getHistory(){
         return historyManager.getHistory();
@@ -29,27 +54,37 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
+        validate(task);
         task.setId(nextId);
         nextId++;
         tasks.put(task.getId(), task);
+        prioritizedTasks.add(task);
         return task.getId();
     }
     @Override
     public int createEpic(Epic epic) {
+        validate(epic);
         epic.setId(nextId);
         nextId++;
         epic.setStatus("NEW");
         epics.put(epic.getId(), epic);
+        prioritizedTasks.add(epic);
         return epic.getId();
     }
     @Override
     public int createSubTask(SubTask subTask) {
+        validate(subTask);
         if(epics.containsKey(subTask.getEpicId())) {
             subTask.setId(nextId);
             nextId++;
             subTasks.put(subTask.getId(), subTask);
+            prioritizedTasks.add(subTask);
             Epic epic = getEpicForSubTask(subTask.getEpicId());
             epic.setSubTaskId(subTask.getId());
+            epic.setSubTaskIdForTree(subTask);
+            epic.setDuration();
+            epic.setStartDate();
+            epic.setEndDate();
             updateStatus(epic);
             return subTask.getId();
         } else {
@@ -118,32 +153,54 @@ public class InMemoryTaskManager implements TaskManager {
     public SubTask getSubTaskForUpdate(Integer id){
         return subTasks.get(id);
     }
+//    @Override
+//    public void update(Task task){
+//        int id = task.getId();
+//
+//        if (!tasks.isEmpty()){
+//            for (Integer index : tasks.keySet()){
+//                if (index.equals(id)){
+//                    tasks.put(task.getId(), task);
+//
+//                }
+//            }
+//        }
+//        return;
+//    }
+
     @Override
     public void update(Task task){
         int id = task.getId();
-
         if (!tasks.isEmpty()){
-            for (Integer index : tasks.keySet()){
-                if (index.equals(id)){
-                    tasks.put(task.getId(), task);
-
-                }
-            }
+            tasks.keySet().stream()
+                    .filter(index -> index.equals(id))
+                    .forEach(index -> tasks.put(task.getId(), task));
         }
-        return;
+
     }
+//    @Override
+//    public void update(Epic epic){
+//        int id = epic.getId();
+//
+//        if (!epics.isEmpty()){
+//            for (Integer index : epics.keySet()){
+//                if (index.equals(id)){
+//                    epics.put(epic.getId(), epic);
+//                }
+//            }
+//        }
+//        return;
+//    }
+
     @Override
     public void update(Epic epic){
         int id = epic.getId();
 
         if (!epics.isEmpty()){
-            for (Integer index : epics.keySet()){
-                if (index.equals(id)){
-                    epics.put(epic.getId(), epic);
-                }
-            }
+            epics.keySet().stream()
+                    .filter(index -> index.equals(id))
+                    .forEach(index -> epics.put(epic.getId(), epic));
         }
-        return;
     }
     @Override
     public void update(SubTask subTask){
@@ -155,13 +212,13 @@ public class InMemoryTaskManager implements TaskManager {
                     if (index.equals(id)) {
                         subTasks.put(subTask.getId(), subTask);
                         Epic epic = getEpicForSubTask(subTask.getEpicId());
-                        updateStatus(epic);
+                        updateStatus(getEpicForSubTask(subTask.getEpicId()));
                     }
                 }
             }
         }
-        return;
     }
+
     @Override
     public void updateStatus(Epic epic){
         if (epic.getSubTaskId().isEmpty()) {
@@ -247,5 +304,21 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public ArrayList<Integer> getAllSubTaskId(Epic epic){
         return epic.getSubTaskId();
+    }
+    class ComparatorTask implements Comparator<Task> {
+        @Override
+        public int compare(Task task1, Task task2) {
+            if (task1.equals(task2)) {
+                return 0;
+            } else if (task1.getStartDate() == null) {
+                return 1;
+            } else if (task2.getStartDate() == null) {
+                return -1;
+            } else if (task1.getStartDate().isBefore(task2.getStartDate())) {
+                return -1;
+            } else {
+                return 1;
+            }
+        }
     }
 }

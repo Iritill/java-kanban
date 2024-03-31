@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.plaf.synth.SynthUI;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,6 +119,31 @@ public class InMemoryTaskManagerTest {
         taskManager.clearByIdSubTask(subTaskTest);
         assertEquals(new ArrayList<>(), epicTest.getSubTaskId(), "При удалении сабтаска остается id в эпике");
         assertNull(subTask, "subTask все еще существует и хранит в себе какие-то значения");
+    }
+
+    @Test
+    void dataTest(){
+
+        //Проверка построена на Epic и SubTask поскольку если работают они, то и работает Task, поскольку все наследуется от него
+        int task4 = taskManager.createEpic(new Epic("Епик номер 1", "312313"));
+
+        assertNull(taskManager.getEpic(task4).getEndDate(), "EndDate не равен null, что невозможно, тк у Epic нет SubTasks");
+        assertNull(taskManager.getEpic(task4).getStartDate(), "StartDate не равен null, что невозможно, тк у Epic нет SubTasks");
+        assertNull(taskManager.getEpic(task4).getDuration(), "Duration не равен null, что невозможно, тк у Epic нет SubTasks");
+
+        int task5 = taskManager.createSubTask(new SubTask("Сабтаск номер1", "312313", LocalDateTime.now().minusMinutes(500), 50L, task4));
+        int task6 = taskManager.createSubTask(new SubTask("Сабтаск номер2", "312313123123", LocalDateTime.now().minusMinutes(450), 450L, task4));
+
+        assertNotNull(taskManager.getEpic(task4).getEndDate(), "EndDate не обновляется");
+        assertNotNull(taskManager.getEpic(task4).getStartDate(), "StartDate не обновляется");
+        assertNotNull(taskManager.getEpic(task4).getDuration(), "Duration не обновляется");
+
+        assertEquals(taskManager.getSubTask(task6).getEndDate(), taskManager.getEpic(task4).getEndDate(), "EndDate неправильно обновляется при добавлении сабтасков");
+
+        assertEquals(taskManager.getSubTask(task5).getStartDate(), taskManager.getEpic(task4).getStartDate(), "StartDate неправильно обновляется при добавлении сабтасков");
+
+        assertEquals(taskManager.getSubTask(task5).getDuration().plusMinutes(taskManager.getSubTask(task6).getDuration().toMinutes()), taskManager.getEpic(task4).getDuration(), "Duration неправильно обновляется при добавлении сабтасков");
+
     }
 
 }
