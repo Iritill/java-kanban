@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import javax.swing.plaf.synth.SynthUI;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -117,14 +119,13 @@ public class InMemoryTaskManagerTest {
         int subTaskTest = taskManager.createSubTask(new SubTask("Сабтаск", "саб таск", epicTest));
         SubTask subTask = taskManager.getSubTaskForUpdate(subTaskTest);
         taskManager.clearByIdSubTask(subTaskTest);
-        assertEquals(new ArrayList<>(), epicTest.getSubTaskId(), "При удалении сабтаска остается id в эпике");
+        assertEquals(new HashMap<>().keySet(), epicTest.getSubTaskId(), "При удалении сабтаска остается id в эпике");
         assertNull(subTask, "subTask все еще существует и хранит в себе какие-то значения");
     }
 
     @Test
-    void dataTest(){
+    void dataTestForEpicAndSubTask(){
 
-        //Проверка построена на Epic и SubTask поскольку если работают они, то и работает Task, поскольку все наследуется от него
         int task4 = taskManager.createEpic(new Epic("Епик номер 1", "312313"));
 
         assertNull(taskManager.getEpic(task4).getEndDate(), "EndDate не равен null, что невозможно, тк у Epic нет SubTasks");
@@ -144,6 +145,31 @@ public class InMemoryTaskManagerTest {
 
         assertEquals(taskManager.getSubTask(task5).getDuration().plusMinutes(taskManager.getSubTask(task6).getDuration().toMinutes()), taskManager.getEpic(task4).getDuration(), "Duration неправильно обновляется при добавлении сабтасков");
 
+    }
+
+    @Test
+    void dataTestForTask(){
+
+        int task4 = taskManager.createTask(new Task("Task номер 1", "312313"));
+
+        assertNull(taskManager.getTask(task4).getEndDate(), "EndDate не равен null, что невозможно, тк у Task нет SubTasks");
+        assertNull(taskManager.getTask(task4).getStartDate(), "StartDate не равен null, что невозможно, тк у Task нет SubTasks");
+        assertNull(taskManager.getTask(task4).getDuration(), "Duration не равен null, что невозможно, тк у Task нет SubTasks");
+
+        int task5 = taskManager.createTask(new Task("Task номер 2", "312313", LocalDateTime.now().minusMinutes(500), 50L));
+        int task6 = taskManager.createTask(new Task("Task номер 3", "312313123123", LocalDateTime.now().minusMinutes(450), 450L));
+
+        assertNotNull(taskManager.getTask(task5).getEndDate(), "EndDate не обновляется при создании Task");
+        assertNotNull(taskManager.getTask(task6).getStartDate(), "StartDate не обновляется при создании Task");
+        assertNotNull(taskManager.getTask(task5).getDuration(), "Duration не обновляется при создании Task");
+
+        assertThrows(RuntimeException.class, () -> {
+            int task8 = taskManager.createTask(new Task("Task номер 8", "312313", LocalDateTime.now().minusMinutes(480), 100L));
+        }, "Добавление такого Task должно приводить в исключению из-за пересечения");
+
+        assertDoesNotThrow(() -> {
+            int task9 = taskManager.createTask(new Task("Task номер 8", "312313", LocalDateTime.now(), 100L));
+        }, "Добавление такого Task не должно приводить к исключению");
     }
 
 }

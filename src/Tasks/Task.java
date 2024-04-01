@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.Objects;
 import java.time.LocalDateTime;
 
+import static Tasks.TasksType.TASK;
+
 public class Task {
     protected String name;
     protected String description;
@@ -19,14 +21,14 @@ public class Task {
         this.description = description;
         this.status = status;
         this.id = id;
-        this.type = TasksType.TASK;
+        this.type = TASK;
     }
     public Task(String name, String description, String status, LocalDateTime startDate, long duration, int id) {
         this.name = name;
         this.description = description;
         this.status = status;
         this.id = id;
-        this.type = TasksType.TASK;
+        this.type = TASK;
         this.startDate = startDate;
         this.duration = Duration.ofMinutes(duration);
     }
@@ -35,7 +37,7 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = "NEW";
-        this.type = TasksType.TASK;
+        this.type = TASK;
         this.startDate = startDate;
         this.duration = Duration.ofMinutes(duration);
     }
@@ -44,7 +46,7 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = "NEW";
-        this.type = TasksType.TASK;
+        this.type = TASK;
         this.startDate = LocalDateTime.now();
         this.duration = Duration.ofMinutes(duration);
     }
@@ -53,7 +55,7 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = "NEW";
-        this.type = TasksType.TASK;
+        this.type = TASK;
     }
 
     public Task(String name, String description, String status, LocalDateTime startDate, Duration duration, int id) {
@@ -61,7 +63,7 @@ public class Task {
         this.description = description;
         this.status = status;
         this.id = id;
-        this.type = TasksType.TASK;
+        this.type = TASK;
         this.startDate = startDate;
         this.duration = duration;
     }
@@ -71,7 +73,7 @@ public class Task {
         this.description = description;
         this.status = status;
         this.id = id;
-        this.type = TasksType.TASK;
+        this.type = TASK;
         this.startDate = startData;
         if(duration == null){
             this.duration = null;
@@ -147,7 +149,7 @@ public class Task {
                 "description=" + description + '\'' +
                 "status=" + status + '\'' +
                 "id=" + id + '\'' +
-                "type:" + type + '\'' +
+                "type:" + TASK + '\'' +
                 "startDate=" + startDate + '\'' +
                 "endDate=" + getEndDate() + '\'' +
                 "duration=" + duration + '\'';
