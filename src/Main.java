@@ -6,6 +6,7 @@ import Service.Manager;
 import Tasks.*;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,13 +17,21 @@ public class Main {
         File file = new File(".\\src\\Resources\\file.txt");
         FileBackedTaskManager manager = new FileBackedTaskManager(file);
 
-        int task1 = manager.createTask(new Task("1313", "312313"));
+        int task1 = manager.createTask(new Task("Один", "312313", LocalDateTime.now().plusMinutes(50), 60L));
         Task tasks = manager.getTask(task1);
-        int task2 = manager.createTask(new Task("131331", "312313123123"));
+        int task2 = manager.createTask(new Task("Два", "312313123123", LocalDateTime.now().plusMinutes(410), 50L));
+        int task3 = manager.createTask(new Task("Три", "312313123", LocalDateTime.now().plusMinutes(460), 85L));
         Task tasks2 = manager.getTask(task2);
         Task tasks3 = manager.getTask(task1);
+        int task4 = manager.createEpic(new Epic("Епик номер 1", "312313"));
+        int task5 = manager.createSubTask(new SubTask("Сабтаск номер1", "312313", LocalDateTime.now().minusMinutes(500), 50L, task4));
+        Task tasks4 = manager.getEpic(task4);
+        Task tasks5 = manager.getSubTask(task5);
+        int task6 = manager.createSubTask(new SubTask("Сабтаск номер2", "312313123123", LocalDateTime.now().minusMinutes(450), 450L, task4));
+        Task tasks6 = manager.getSubTask(task6);
 
         System.out.println(manager.getHistory());
+        System.out.println(manager.getPrioritizedTasks());
 //
 //        File file = new File(".\\src\\Resources\\file.txt");
 //        FileBackedTaskManager manager = FileBackedTaskManager.loadFromManager(file);
