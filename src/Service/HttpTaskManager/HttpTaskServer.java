@@ -12,22 +12,18 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 import Service.Interface.*;
-import Service.Manager;
 import Service.InMemoryManager.*;
 import Tasks.Task;
 import Tasks.Epic;
 import Tasks.SubTask;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -45,24 +41,38 @@ public class HttpTaskServer {
     }
 
     public HttpTaskServer() throws IOException {
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .serializeNulls()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
+                ;
+        gson = gsonBuilder.create();
         server = HttpServer.create();
         server.bind(new InetSocketAddress(PORT), 0);
         this.manager = new InMemoryTaskManager();
         server.createContext("/tasks", new handlerTask());
         server.createContext("/subtasks", new handlerSubtask());
         server.createContext("/epics", new handlerEpic());
+        server.createContext("/epics/subtasks", new handlerEpic());
         server.createContext("/history", new handlerHistory());
         server.createContext("/prioritized", new handler());
         server.start();
     }
 
     public HttpTaskServer(TaskManager manager) throws IOException {
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .serializeNulls()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
+                ;
+        gson = gsonBuilder.create();
         server = HttpServer.create();
         server.bind(new InetSocketAddress(PORT), 0);
         this.manager = manager;
         server.createContext("/tasks", new handlerTask());
         server.createContext("/subtasks", new handlerSubtask());
         server.createContext("/epics", new handlerEpic());
+        server.createContext("/epics/subtasks", new handlerEpic());
         server.createContext("/history", new handlerHistory());
         server.createContext("/prioritized", new handler());
         server.start();
@@ -78,14 +88,7 @@ public class HttpTaskServer {
     class handlerTask implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            GsonBuilder gsonBuilder = new GsonBuilder()
-                    .serializeNulls()
-                    .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-                    .registerTypeAdapter(Duration.class, new DurationAdapter())
-                    ;
-            gson = gsonBuilder.create();
             String path = httpExchange.getRequestURI().getPath();
-            System.out.println(path);
             String[] splitPath = path.split("/");
             String method = httpExchange.getRequestMethod();
             try {
@@ -142,27 +145,27 @@ public class HttpTaskServer {
     class handlerEpic implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            GsonBuilder gsonBuilder = new GsonBuilder()
-                    .serializeNulls()
-                    .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-                    .registerTypeAdapter(Duration.class, new DurationAdapter())
-                    ;
-            gson = gsonBuilder.create();
             String path = httpExchange.getRequestURI().getPath();
             String[] splitPath = path.split("/");
             String method = httpExchange.getRequestMethod();
             try {
                 switch (method) {
                     case "GET": {
-                        if (splitPath[1].equals("epics") && httpExchange.getRequestURI().getQuery() == null) {
+                        if (splitPath[1].equals("epics") && splitPath.length == 2 && httpExchange.getRequestURI().getQuery() == null) {
                             String response = gson.toJson(manager.getAllEpics());
                             sendText(httpExchange, response, 200);
                             return;
-                        } else if (splitPath[1].equals("epics") && httpExchange.getRequestURI().getQuery() != null) {
+                        } else if (splitPath[1].equals("epics") && splitPath.length == 2 && httpExchange.getRequestURI().getQuery() != null) {
                             int id = Integer.parseInt(httpExchange.getRequestURI().getQuery().replaceFirst("id=", ""));
                             String response = gson.toJson(manager.getEpic(id));
                             sendText(httpExchange, response, 200);
                             return;
+                        } else if (splitPath[1].equals("epics") && splitPath[2].equals("subtasks") && httpExchange.getRequestURI().getQuery() != null){
+                            int id = Integer.parseInt(httpExchange.getRequestURI().getQuery().replaceFirst("id=", ""));
+                            String response = gson.toJson(manager.getAllSubTaskByEpic(id));
+                            sendText(httpExchange, response, 200);
+                            return;
+
                         }
                     }
                     case "POST": {
@@ -171,16 +174,10 @@ public class HttpTaskServer {
                             Epic epic = gson.fromJson(requestBody, Epic.class);
 
                             Integer epicId = epic.getId();
+                            int epic1 = manager.createEpic(epic);
+                            String response = gson.toJson(epic);
+                            sendText(httpExchange, response, 201);
 
-                            if (epicId != 0) {
-                                manager.update(epic);
-                                String response = "Успешное обновление задачи";
-                                sendText(httpExchange, response, 201);
-                            } else {
-                                int epic1 = manager.createEpic(epic);
-                                String response = gson.toJson(epic);
-                                sendText(httpExchange, response, 201);
-                            }
                             return;
                         }
                     }
@@ -195,6 +192,8 @@ public class HttpTaskServer {
                 }
             } catch (TaskNotFoundException e) {
                 errorText(httpExchange, "Ошибка! задача не найдена", 404);
+            } catch (TaskValidException e) {
+                errorText(httpExchange, "Ошибка! Задача пересекается!", 406);
             } finally {
                 httpExchange.close();
             }
@@ -204,12 +203,6 @@ public class HttpTaskServer {
     class handlerSubtask implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            GsonBuilder gsonBuilder = new GsonBuilder()
-                    .serializeNulls()
-                    .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-                    .registerTypeAdapter(Duration.class, new DurationAdapter())
-                    ;
-            gson = gsonBuilder.create();
             String path = httpExchange.getRequestURI().getPath();
             String[] splitPath = path.split("/");
             String method = httpExchange.getRequestMethod();
@@ -217,15 +210,12 @@ public class HttpTaskServer {
                 switch (method) {
                     case "GET": {
                         if (splitPath[1].equals("subtasks") && httpExchange.getRequestURI().getQuery() == null) {
-                            System.out.println(manager.getAllSubTasks());
                             String response = gson.toJson(manager.getAllSubTasks());
-                            System.out.println(response);
                             sendText(httpExchange, response, 200);
                             return;
                         } else if (splitPath[1].equals("subtasks") && httpExchange.getRequestURI().getQuery() != null) {
                             System.out.println("333");
                             int id = Integer.parseInt(httpExchange.getRequestURI().getQuery().replaceFirst("id=", ""));
-                            System.out.println(manager.getSubTask(id));
                             String response = gson.toJson(manager.getSubTask(id));
                             sendText(httpExchange, response, 200);
                             return;
@@ -261,7 +251,7 @@ public class HttpTaskServer {
             } catch (TaskNotFoundException e) {
                 errorText(httpExchange, "Ошибка! задача не найдена", 404);
             } catch (TaskValidException e) {
-                errorText(httpExchange, "Ошибка!", 406);
+                errorText(httpExchange, "Ошибка! Задача пересекается!", 406);
             } finally {
                 httpExchange.close();
             }
@@ -269,12 +259,6 @@ public class HttpTaskServer {
     }
 
     public void errorText(HttpExchange exchange, String response, int code) throws IOException {
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .serializeNulls()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
-                ;
-        gson = gsonBuilder.create();
         String json = gson.toJson(response);
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
         exchange.sendResponseHeaders(code, bytes.length);
@@ -290,10 +274,6 @@ public class HttpTaskServer {
     class handler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            GsonBuilder gsonBuilder = new GsonBuilder()
-                    .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
-                    .registerTypeAdapter(Duration.class, new DurationAdapter());
-            Gson gson = gsonBuilder.create();
             String path = exchange.getRequestURI().getPath();
             String[] splitPath = path.split("/");
             String method = exchange.getRequestMethod();
@@ -314,9 +294,6 @@ public class HttpTaskServer {
     class handlerHistory implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter());
-            Gson gson = gsonBuilder.create();
             String path = exchange.getRequestURI().getPath();
             String[] splitPath = path.split("/");
             String method = exchange.getRequestMethod();
@@ -335,8 +312,6 @@ public class HttpTaskServer {
     }
 
     public void sendText(HttpExchange exchange, String response, int code) throws IOException {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        Gson gson = gsonBuilder.create();
         byte[] bytes = response.getBytes(Charset.defaultCharset());
         exchange.sendResponseHeaders(code, bytes.length);
         exchange.getResponseHeaders().add("Content-Type", "application/json");
@@ -345,13 +320,13 @@ public class HttpTaskServer {
 
 
     public void start() {
-        System.out.println("Started HTTP Task Server");
+        System.out.println("HTTP Task Server запущен");
         server.start();
     }
 
     public static void stop(int delay) {
         server.stop(delay);
-        System.out.println("HTTP Task Server has stopped");
+        System.out.println("HTTP Task Server остановлен");
     }
 
     public static class LocalDateAdapter extends TypeAdapter<LocalDateTime> {

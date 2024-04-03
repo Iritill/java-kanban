@@ -23,10 +23,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 public class TestHttp {
-    private static final int PORT = 8080;
     private HttpTaskServer server;
     private Task task;
     private Epic epic;
@@ -37,7 +35,7 @@ public class TestHttp {
     private TaskManager manager;
 
     @BeforeEach
-    void init() throws IOException, InterruptedException {
+    void init() throws IOException {
         client = HttpClient.newHttpClient();
         manager = new InMemoryTaskManager();
         GsonBuilder gsonBuilder = new GsonBuilder()
@@ -84,10 +82,7 @@ public class TestHttp {
 
     @Test
     void getSubTaskTest() throws IOException, InterruptedException {
-        SubTask task3 = new SubTask("Задание 11325", "Описание 4234", LocalDateTime.now().minusMinutes(400), 60L, epicId);
-        manager.createSubTask(task3);
-        System.out.println(gson.toJson(task3));
-        //Проверка вывода одного таска
+        //Проверка вывода всех тасков
         URI url4 = URI.create("http://localhost:8080/subtasks");
         HttpRequest request4 = HttpRequest.newBuilder().uri(url4).GET().build();
         HttpResponse<String> response4 = client.send(request4, HttpResponse.BodyHandlers.ofString());
@@ -96,7 +91,7 @@ public class TestHttp {
         Assertions.assertNotNull(expected4);
 
 
-        //Проверка вывода всех тасков
+        //Проверка вывода одного таска
         URI url5 = URI.create("http://localhost:8080/subtasks?id=3");
         HttpRequest request5 = HttpRequest.newBuilder().uri(url5).GET().build();
         HttpResponse<String> response5 = client.send(request5, HttpResponse.BodyHandlers.ofString());
@@ -182,7 +177,7 @@ public class TestHttp {
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).POST(body2).build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(201, response2.statusCode());
-        Task expected = gson.fromJson((String) response2.body(), Epic.class);
+        Epic expected = gson.fromJson((String) response2.body(), Epic.class);
         Assertions.assertNotNull(expected);
         HttpTaskServer var10000 = this.server;
         Epic actual = manager.getEpic(expected.getId());
@@ -192,7 +187,7 @@ public class TestHttp {
     @Test
     void updateTaskTest() throws IOException, InterruptedException {
         LocalDateTime timeOfTask1 = LocalDateTime.now();
-        Task task2 = new Task("Задание", "Описание", "DONE", LocalDateTime.now().minusMinutes(900), 60L, 1);
+        Task task2 = new Task("Задание обновленное", "Описание", "DONE", LocalDateTime.now().minusMinutes(900), 60L, 1);
         URI url2 = URI.create("http://localhost:8080/tasks");
         String json2 = gson.toJson(task2);
         HttpRequest.BodyPublisher body2 = HttpRequest.BodyPublishers.ofString(json2);
@@ -202,5 +197,65 @@ public class TestHttp {
         HttpTaskServer var10000 = this.server;
         Task actual = manager.getTask(task2.getId());
         Assertions.assertNotNull(actual);
+        Assertions.assertNotEquals(task.getName(), actual.getName(), "Task не обновляется");
     }
+
+    @Test
+    void updateSubTaskTest() throws IOException, InterruptedException {
+        LocalDateTime timeOfTask1 = LocalDateTime.now();
+        SubTask task2 = new SubTask("Подзадача обновленная", "Описание", "DONE", LocalDateTime.now().minusMinutes(900), 60L, epicId, 3);
+        URI url2 = URI.create("http://localhost:8080/subtasks");
+        String json2 = gson.toJson(task2);
+        HttpRequest.BodyPublisher body2 = HttpRequest.BodyPublishers.ofString(json2);
+        HttpRequest request2 = HttpRequest.newBuilder().uri(url2).POST(body2).build();
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(201, (long) response2.statusCode());
+        HttpTaskServer var10000 = this.server;
+        SubTask actual = manager.getSubTask(task2.getId());
+        Assertions.assertNotNull(actual);
+        Assertions.assertNotEquals(subtask.getName(), actual.getName());
+    }
+
+    @Test
+    void deleteTaskTest() throws IOException, InterruptedException {
+        URI url2 = URI.create("http://localhost:8080/tasks?id=1");
+        HttpRequest request2 = HttpRequest.newBuilder().uri(url2).DELETE().build();
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(200, (long) response2.statusCode());
+        HttpTaskServer var10000 = this.server;
+        Assertions.assertEquals(new ArrayList<Task>(), manager.getAllTasks(), "Task не удалился");
+    }
+
+    @Test
+    void deleteSubTaskTest() throws IOException, InterruptedException {
+        URI url2 = URI.create("http://localhost:8080/subtasks?id=3");
+        HttpRequest request2 = HttpRequest.newBuilder().uri(url2).DELETE().build();
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(200, (long) response2.statusCode());
+        HttpTaskServer var10000 = this.server;
+        Assertions.assertEquals(new ArrayList<SubTask>(), manager.getAllSubTasks(), "SubTask не удалился");
+    }
+
+    @Test
+    void deleteEpicTest() throws IOException, InterruptedException {
+        URI url2 = URI.create("http://localhost:8080/epics?id=2");
+        HttpRequest request2 = HttpRequest.newBuilder().uri(url2).DELETE().build();
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(200, (long) response2.statusCode());
+        HttpTaskServer var10000 = this.server;
+        Assertions.assertEquals(new ArrayList<Epic>(), manager.getAllEpics(), "Epic не удалился");
+    }
+
+    @Test
+    void exceptionTest() throws IOException, InterruptedException {
+        Task task2 = new Task("Задание", "Описание", LocalDateTime.now(), 60L);
+        URI url2 = URI.create("http://localhost:8080/tasks");
+        String json2 = gson.toJson(task2);
+        HttpRequest.BodyPublisher body2 = HttpRequest.BodyPublishers.ofString(json2);
+        HttpRequest request2 = HttpRequest.newBuilder().uri(url2).POST(body2).build();
+        HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
+        Assertions.assertEquals(406, response2.statusCode(), "Выводится не тот статус код");
+    }
+
+
 }
