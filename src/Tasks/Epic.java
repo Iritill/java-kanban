@@ -7,9 +7,9 @@ import java.util.*;
 import static Tasks.TasksType.EPIC;
 
 public class Epic extends Task {
-    private final HashMap<Integer, SubTask> subTaskId = new HashMap<>();
+    private transient final HashMap<Integer, SubTask> subTaskId = new HashMap<>();
     protected LocalDateTime endDate;
-    protected TasksType type;
+
 
     public Epic(String name, String description) {
         super(name, description);

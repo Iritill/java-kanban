@@ -1,15 +1,19 @@
 import Service.FileBackedManager.CSVFormat;
 import Service.FileBackedManager.FileBackedTaskManager;
+import Service.HttpTaskManager.HttpTaskServer;
 import Service.InMemoryManager.*;
 import Service.Interface.TaskManager;
 import Service.Manager;
 import Tasks.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.File;
+import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 
 public class Main {
 
@@ -32,6 +36,14 @@ public class Main {
 
         System.out.println(manager.getHistory());
         System.out.println(manager.getPrioritizedTasks());
+
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .serializeNulls()
+                .registerTypeAdapter(LocalDateTime.class, new HttpTaskServer.LocalDateAdapter())
+                .registerTypeAdapter(Duration.class, new HttpTaskServer.DurationAdapter());
+        Gson gson = gsonBuilder.create();
+
+        System.out.println(gson.toJson(tasks));
 //
 //        File file = new File(".\\src\\Resources\\file.txt");
 //        FileBackedTaskManager manager = FileBackedTaskManager.loadFromManager(file);
