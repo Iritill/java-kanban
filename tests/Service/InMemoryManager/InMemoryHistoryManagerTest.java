@@ -23,7 +23,7 @@ class InMemoryHistoryManagerTest {
 
         int taskEpicFirst = taskManager.createEpic(new Epic("Первый Epic", "Эпик"));
 
-        int taskSubTaskFirst = taskManager.createSubTask(new SubTask("Первый сабтаск", "сабтаск", taskManager.getEpicForSubTask(taskEpicFirst)));
+        int taskSubTaskFirst = taskManager.createSubTask(new SubTask("Первый сабтаск", "сабтаск", LocalDateTime.now().minusMinutes(800), 10L,  taskEpicFirst));
 
         ArrayList<Task> arrayForTaskTest = new ArrayList<>();
 

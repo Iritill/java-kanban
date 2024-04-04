@@ -33,17 +33,6 @@ public class Main {
         Task tasks5 = manager.getSubTask(task5);
         int task6 = manager.createSubTask(new SubTask("Сабтаск номер2", "312313123123", LocalDateTime.now().minusMinutes(450), 450L, task4));
         Task tasks6 = manager.getSubTask(task6);
-
-        System.out.println(manager.getHistory());
-        System.out.println(manager.getPrioritizedTasks());
-
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .serializeNulls()
-                .registerTypeAdapter(LocalDateTime.class, new HttpTaskServer.LocalDateAdapter())
-                .registerTypeAdapter(Duration.class, new HttpTaskServer.DurationAdapter());
-        Gson gson = gsonBuilder.create();
-
-        System.out.println(gson.toJson(tasks));
 //
 //        File file = new File(".\\src\\Resources\\file.txt");
 //        FileBackedTaskManager manager = FileBackedTaskManager.loadFromManager(file);

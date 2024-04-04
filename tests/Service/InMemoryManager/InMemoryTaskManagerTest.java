@@ -26,8 +26,8 @@ public class InMemoryTaskManagerTest {
 
         int taskForTestCreate3 = taskManager.createEpic(new Epic("Третий таск", "Эпик"));
 
-        int taskForTestCreate4 = taskManager.createSubTask(new SubTask("Четвертый таск", "Сабтаск", taskManager.getEpicForSubTask(taskForTestCreate3)));
-        int taskForTestCreate5 = taskManager.createSubTask(new SubTask("Пятый таск", "Сабтаск", taskManager.getEpicForSubTask(taskForTestCreate3)));
+        int taskForTestCreate4 = taskManager.createSubTask(new SubTask("Четвертый таск", "Сабтаск", LocalDateTime.now().minusMinutes(1200), 10L,  taskForTestCreate3));
+        int taskForTestCreate5 = taskManager.createSubTask(new SubTask("Пятый таск", "Сабтаск", LocalDateTime.now().minusMinutes(1000), 10L,  taskForTestCreate3));
     }
 
     @Test
@@ -119,7 +119,7 @@ public class InMemoryTaskManagerTest {
         int subTaskTest = taskManager.createSubTask(new SubTask("Сабтаск", "саб таск", epicTest));
         SubTask subTask = taskManager.getSubTaskForUpdate(subTaskTest);
         taskManager.clearByIdSubTask(subTaskTest);
-        assertEquals(new HashMap<>().keySet(), epicTest.getSubTaskId(), "При удалении сабтаска остается id в эпике");
+        assertEquals(new ArrayList<>(), epicTest.getSubTaskId(), "При удалении сабтаска остается id в эпике");
         assertNull(subTask, "subTask все еще существует и хранит в себе какие-то значения");
     }
 

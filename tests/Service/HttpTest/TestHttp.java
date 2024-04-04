@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import Service.InMemoryManager.*;
 import Service.HttpTaskManager.*;
+import Service.HttpTaskManager.TypeAdapters.*;
 import Tasks.Task;
 import Tasks.Epic;
 import Tasks.SubTask;
@@ -25,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TestHttp {
-    private HttpTaskServer server;
     private Task task;
     private Epic epic;
     private int epicId;
@@ -36,32 +36,30 @@ public class TestHttp {
 
     @BeforeEach
     void init() throws IOException {
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .serializeNulls()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
+                ;
+        gson = gsonBuilder.create();
         client = HttpClient.newHttpClient();
         manager = new InMemoryTaskManager();
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new HttpTaskServer.LocalDateAdapter())
-                .registerTypeAdapter(Duration.class, new HttpTaskServer.DurationAdapter());
-        gsonBuilder.serializeNulls();
-        gson = gsonBuilder.create();
         task = new Task("Задание 2", "Описание 2", LocalDateTime.now(), Duration.ofMinutes(1));
         manager.createTask(task);
         epic = new Epic("Большое задание 1", "Описание 1");
         epicId = manager.createEpic(epic);
         subtask = new SubTask("Подзадача 111", "Описание11", LocalDateTime.now().minusMinutes(500), 60L, epicId);
         manager.createSubTask(subtask);
-        server = new HttpTaskServer(manager);
+        HttpTaskServer.start(manager);
     }
 
     @AfterEach
-    void stop() {
-        server.stop(0);
+    public void stopHttpServer(){
+        HttpTaskServer.stop(0);
     }
 
     @Test
     void getTaskTest() throws IOException, InterruptedException {
-        Task task2 = new Task("Задание 111111", "Описание 111111");
-        manager.createTask(task2);
-
         //Проверка вывода одного таска
         URI url2 = URI.create("http://localhost:8080/tasks?id=1");
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).GET().build();
@@ -147,7 +145,6 @@ public class TestHttp {
         Assertions.assertEquals(201, response.statusCode());
         Task expected = (Task) gson.fromJson(response.body(), SubTask.class);
         Assertions.assertNotNull(expected);
-        HttpTaskServer var10000 = this.server;
         SubTask actual = manager.getSubTask(expected.getId());
         Assertions.assertEquals(expected, actual);
     }
@@ -179,7 +176,6 @@ public class TestHttp {
         Assertions.assertEquals(201, response2.statusCode());
         Epic expected = gson.fromJson((String) response2.body(), Epic.class);
         Assertions.assertNotNull(expected);
-        HttpTaskServer var10000 = this.server;
         Epic actual = manager.getEpic(expected.getId());
         Assertions.assertEquals(expected, actual);
     }
@@ -194,7 +190,6 @@ public class TestHttp {
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).POST(body2).build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(201, (long) response2.statusCode());
-        HttpTaskServer var10000 = this.server;
         Task actual = manager.getTask(task2.getId());
         Assertions.assertNotNull(actual);
         Assertions.assertNotEquals(task.getName(), actual.getName(), "Task не обновляется");
@@ -210,7 +205,6 @@ public class TestHttp {
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).POST(body2).build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(201, (long) response2.statusCode());
-        HttpTaskServer var10000 = this.server;
         SubTask actual = manager.getSubTask(task2.getId());
         Assertions.assertNotNull(actual);
         Assertions.assertNotEquals(subtask.getName(), actual.getName());
@@ -222,7 +216,6 @@ public class TestHttp {
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).DELETE().build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, (long) response2.statusCode());
-        HttpTaskServer var10000 = this.server;
         Assertions.assertEquals(new ArrayList<Task>(), manager.getAllTasks(), "Task не удалился");
     }
 
@@ -232,7 +225,6 @@ public class TestHttp {
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).DELETE().build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, (long) response2.statusCode());
-        HttpTaskServer var10000 = this.server;
         Assertions.assertEquals(new ArrayList<SubTask>(), manager.getAllSubTasks(), "SubTask не удалился");
     }
 
@@ -242,7 +234,6 @@ public class TestHttp {
         HttpRequest request2 = HttpRequest.newBuilder().uri(url2).DELETE().build();
         HttpResponse<String> response2 = client.send(request2, HttpResponse.BodyHandlers.ofString());
         Assertions.assertEquals(200, (long) response2.statusCode());
-        HttpTaskServer var10000 = this.server;
         Assertions.assertEquals(new ArrayList<Epic>(), manager.getAllEpics(), "Epic не удалился");
     }
 

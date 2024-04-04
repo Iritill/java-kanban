@@ -7,7 +7,7 @@ import java.util.*;
 import static Tasks.TasksType.EPIC;
 
 public class Epic extends Task {
-    private transient final HashMap<Integer, SubTask> subTaskId = new HashMap<>();
+    private final ArrayList<Integer> subTaskId = new ArrayList<>();
     protected LocalDateTime endDate;
 
 
@@ -32,31 +32,6 @@ public class Epic extends Task {
         this.type = EPIC;
     }
 
-    public void setStartDate(){
-        if (!getSubTaskId().isEmpty()) {
-            LocalDateTime StartEpic = LocalDateTime.of(4000, 01, 01, 00, 00);
-            LocalDateTime EndEpic = LocalDateTime.of(1000, 01, 01, 00, 00);
-            for (SubTask subTask : subTaskId.values()) {
-                if (subTask.getStartDate() != null) {
-                    LocalDateTime startDateTime = subTask.getStartDate();
-                    if (startDateTime.isBefore(StartEpic)) {
-                        StartEpic = startDateTime;
-                    }
-                    LocalDateTime endDateTime = subTask.getEndDate();
-                    if (endDateTime.isAfter(EndEpic)) {
-                        EndEpic = endDateTime;
-                    }
-
-                }
-            }
-            startDate = StartEpic;
-            endDate = EndEpic;
-        } else {
-            startDate = null;
-            endDate = null;
-        }
-    }
-
     public LocalDateTime getEndDate(){
         return endDate;
     }
@@ -65,20 +40,19 @@ public class Epic extends Task {
         this.endDate = endDate;
     }
 
-
-
-    public void setDuration(){
-        duration = Duration.ofMinutes(0);
-        for(SubTask subTask1 : subTaskId.values()){
-            if(subTask1.getDuration() != null){
-                duration = Duration.ofMinutes(duration.toMinutes() + subTask1.getDuration().toMinutes()) ;
-            }
-        }
+    public void setStartDate(LocalDateTime startDate){
+        this.startDate = startDate;
     }
 
-    public void setSubTaskId(int id, SubTask subTask){
 
-        subTaskId.put(id, subTask);
+
+    public void setDuration(Duration duration){
+        this.duration = duration;
+    }
+
+    public void setSubTaskId(int id){
+
+        subTaskId.add(id);
     }
     public TasksType getType(){
         return EPIC;
@@ -92,8 +66,8 @@ public class Epic extends Task {
         subTaskId.clear();
     }
 
-    public Set<Integer> getSubTaskId() {
-        return subTaskId.keySet();
+    public List<Integer> getSubTaskId() {
+        return subTaskId;
     }
 
     @Override
