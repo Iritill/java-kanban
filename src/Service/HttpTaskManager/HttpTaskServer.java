@@ -214,7 +214,6 @@ public class HttpTaskServer {
                             sendText(httpExchange, response, 200);
                             return;
                         } else if (splitPath[1].equals("subtasks") && httpExchange.getRequestURI().getQuery() != null) {
-                            System.out.println("333");
                             int id = Integer.parseInt(httpExchange.getRequestURI().getQuery().replaceFirst("id=", ""));
                             String response = gson.toJson(manager.getSubTask(id));
                             sendText(httpExchange, response, 200);
