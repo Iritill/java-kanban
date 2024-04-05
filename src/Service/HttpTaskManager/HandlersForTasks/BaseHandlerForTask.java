@@ -11,8 +11,8 @@ import java.nio.charset.StandardCharsets;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class BaseHandlerForTask implements HttpHandler {
-    TaskManager manager;
-    Gson gson;
+    protected TaskManager manager;
+    protected Gson gson;
 
     public BaseHandlerForTask(TaskManager manager, Gson gson) {
         this.manager = manager;
