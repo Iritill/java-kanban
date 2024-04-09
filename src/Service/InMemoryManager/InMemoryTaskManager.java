@@ -1,4 +1,5 @@
 package Service.InMemoryManager;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -74,10 +75,10 @@ public class InMemoryTaskManager implements TaskManager {
             subTasks.put(subTask.getId(), subTask);
             prioritizedTasks.add(subTask);
             Epic epic = getEpicForSubTask(subTask.getEpicId());
-            epic.setSubTaskId(subTask.getId(), subTask);
-            epic.setDuration();
-            epic.setStartDate();
-            updateStatus(epic);
+            epic.setSubTaskId(subTask.getId());
+            setStartTimeEpic(epic);
+            setDurationEpic(epic);
+            setEndTimeEpic(epic);
             return subTask.getId();
         } else {
             return 0;
@@ -222,7 +223,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void clearByIdEpic(Integer id){
         if (!epics.isEmpty() && epics.containsKey(id)) {
-            Set<Integer> subTaskId = epics.get(id).getSubTaskId();
+            List<Integer> subTaskId = epics.get(id).getSubTaskId();
 
             if (!subTaskId.isEmpty()) {
                 for (Integer index : subTaskId){
@@ -266,10 +267,7 @@ public class InMemoryTaskManager implements TaskManager {
     public HistoryManager getHistoryManager(){
         return historyManager;
     }
-    @Override
-    public Set<Integer> getAllSubTaskId(Epic epic){
-        return epic.getSubTaskId();
-    }
+
 
     private void checkIntersection(Task task) {
         LocalDateTime startDate = task.getStartDate();
@@ -289,4 +287,31 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
     }
+
+    @Override
+    public void setStartTimeEpic(Epic epic){
+        epic.setStartDate(epic.getSubTaskId().stream()
+                .map(id -> subTasks.get(id).getStartTime())
+                .min(LocalDateTime::compareTo).orElse(null)
+        );
+    }
+
+    @Override
+    public void setEndTimeEpic(Epic epic){
+        epic.setEndDate(epic.getSubTaskId().stream()
+                .map(id -> subTasks.get(id).getEndDate())
+                .max(LocalDateTime::compareTo).orElse(null)
+        );
+    }
+
+    @Override
+    public void setDurationEpic(Epic epic){
+        epic.setDuration(Duration.ofMinutes(epic.getSubTaskId().stream()
+                        .map(id -> subTasks.get(id).getDuration().toMinutes())
+                        .mapToLong(Long::intValue)
+                        .sum()
+                )
+        );
+    }
+
 }

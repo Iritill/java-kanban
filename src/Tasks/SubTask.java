@@ -1,16 +1,12 @@
 package Tasks;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Objects;
 
 import static Tasks.TasksType.SUBTASK;
 
 public class SubTask extends Task{
     private int epicId;
 
-    protected TasksType type;
 
     public SubTask(String name, String description, Epic epic) {
         super(name, description);
@@ -60,6 +56,7 @@ public class SubTask extends Task{
                 "type:" + SUBTASK + '\'' +
                 "startDate=" + startDate + '\'' +
                 "endDate=" + getEndDate() + '\'' +
+                "epicId=" + getEpicId() + '\'' +
                 "duration=" + duration + '\'';
     }
 

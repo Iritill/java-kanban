@@ -4,9 +4,7 @@ import Tasks.Epic;
 import Tasks.SubTask;
 import Tasks.Task;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public interface TaskManager {
     public List<Task> getPrioritizedTasks();
@@ -34,6 +32,10 @@ public interface TaskManager {
     public void clearByIdEpic(Integer id);
     public void clearByIdSubTask(Integer id);
     public List<SubTask> getAllSubTaskByEpic(Integer id);
-    public Set<Integer> getAllSubTaskId(Epic epic);
     public List<Task> getHistory();
+
+    public void setStartTimeEpic(Epic epic);
+    public void setEndTimeEpic(Epic epic);
+    public void setDurationEpic(Epic epic);
+
 }

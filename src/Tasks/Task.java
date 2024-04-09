@@ -42,6 +42,15 @@ public class Task {
         this.duration = Duration.ofMinutes(duration);
     }
 
+    public Task(String name, String description, LocalDateTime startDate, Duration duration) {
+        this.name = name;
+        this.description = description;
+        this.status = "NEW";
+        this.type = TASK;
+        this.startDate = startDate;
+        this.duration = duration;
+    }
+
     public Task(String name, String description, long duration) {
         this.name = name;
         this.description = description;
